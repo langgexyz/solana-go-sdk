@@ -24,6 +24,20 @@ func (c SendTransactionConfig) toRpc() rpc.SendTransactionConfig {
 	}
 }
 
+// SendRawTransaction send transaction struct directly
+func (c *Client) SendRawTransaction(ctx context.Context, rawTx []byte) (string, error) {
+	return process(
+		func() (rpc.JsonRpcResponse[string], error) {
+			return c.RpcClient.SendTransactionWithConfig(
+				ctx,
+				base64.StdEncoding.EncodeToString(rawTx),
+				SendTransactionConfig{}.toRpc(),
+			)
+		},
+		forward[string],
+	)
+}
+
 // SendTransaction send transaction struct directly
 func (c *Client) SendTransaction(ctx context.Context, tx types.Transaction) (string, error) {
 	rawTx, err := tx.Serialize()
